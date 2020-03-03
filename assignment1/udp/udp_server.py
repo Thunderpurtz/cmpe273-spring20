@@ -33,6 +33,7 @@ def get_data(s):
 
 
 def listen_forever():
+	print("Server started at port 4000.")
 	s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 	s.bind(("", UDP_PORT))
 	s.settimeout(2.5)
@@ -42,26 +43,26 @@ def listen_forever():
 			data, ip = s.recvfrom(BUFFER_SIZE)
 			stripped = data.decode(encoding="utf-8").strip()
 			client_id = get_client_id(stripped)
-			print(client_id)
+			packet = get_packet(stripped)
+			ack_num = client_id + ":" + packet
+			if stripped[-6:] == "Finish":
+				print("Upload successfully completed.")
+				del clients[client_id]
 			#first time client connects
-			if client_id not in clients:
+			elif client_id not in clients:
+				print("Accepting a file upload...")
 				clients[client_id] = [get_data(stripped)] #implicitly packet 0
-				s.sendto(MESSAGE.encode(), ip)
-				print(clients)
-			else:
-				print("stripped =", stripped)
-				print("get packet =", get_packet(stripped))
-				if int(get_packet(stripped)) == len(clients[client_id]):
-					print("else if correct packet")
-					clients[client_id].append(get_data(stripped))
-					s.sendto(MESSAGE.encode(), ip)
-				else: #packet sent was out of order, resend the requested packet
-					print("else resend")
-					s.sendto(RESEND.encode(), ip)
+				s.sendto(f"Received ack({ack_num}) from the server.".encode(), ip)
+
+			elif int(get_packet(stripped)) == len(clients[client_id]):
+				clients[client_id].append(get_data(stripped))
+				s.sendto(f"Received ack({ack_num}) from the server.".encode(), ip)
+			else: #packet sent was out of order, resend the requested packet
+				print("resend")
+				s.sendto(RESEND.encode(), ip)
 		except (socket.timeout, socket.error) as e:
-			print(e)
 			timeouts += 1
-			if timeouts == 5:
+			if timeouts == 25:
 				print("timeout limit exceeded, no more clients connecting, exiting")
 				exit()
 
