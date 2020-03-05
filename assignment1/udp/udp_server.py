@@ -46,11 +46,11 @@ def listen_forever():
 			packet = get_packet(stripped)
 			ack_num = client_id + ":" + packet
 			if stripped[-6:] == "Finish":
-				print("Upload successfully completed.")
+				print("Upload successfully completed.", flush=True)
 				del clients[client_id]
 			#first time client connects
 			elif client_id not in clients:
-				print("Accepting a file upload...")
+				print("Accepting a file upload...", flush=True)
 				clients[client_id] = [get_data(stripped)] #implicitly packet 0
 				s.sendto(f"Received ack({ack_num}) from the server.".encode(), ip)
 
@@ -58,12 +58,12 @@ def listen_forever():
 				clients[client_id].append(get_data(stripped))
 				s.sendto(f"Received ack({ack_num}) from the server.".encode(), ip)
 			else: #packet sent was out of order, resend the requested packet
-				print("resend")
+				print("resend", flush=True)
 				s.sendto(RESEND.encode(), ip)
 		except (socket.timeout, socket.error) as e:
 			timeouts += 1
 			if timeouts == 25:
-				print("timeout limit exceeded, no more clients connecting, exiting")
+				print("timeout limit exceeded, no more clients connecting, exiting", flush=True)
 				exit()
 
 
