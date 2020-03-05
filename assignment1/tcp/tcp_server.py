@@ -28,7 +28,7 @@ def process_clients():
                 del all_connections[idx]
                 del all_addresses[idx]
                 continue
-            print(f"{data.decode()}")
+            print(f"{data.decode()}", flush=True)
             conn.send("pong".encode())
         if len(all_connections) < 1:
             break

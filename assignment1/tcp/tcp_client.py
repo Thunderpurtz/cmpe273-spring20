@@ -15,10 +15,10 @@ def send(id=0):
     s.send(f"Connected Client:{id}.".encode())
     data = s.recv(BUFFER_SIZE)
     for _ in range(int(sys.argv[3])):
-        print(f"Sending data:{MESSAGE}")
+        print(f"Sending data:{MESSAGE}", flush=True)
         s.send(f"Received data:{id}:{MESSAGE}".encode())
         data = s.recv(BUFFER_SIZE)
-        print("Received data:", data.decode())
+        print("Received data:", data.decode(), flush=True)
         time.sleep(int(sys.argv[2]))
 
     s.close()
