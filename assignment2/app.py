@@ -70,10 +70,10 @@ def upload_scantron(id=0):
         "score":"",
         "result":""
     }
-    graded = grade_scantron(req["answers"], tests[req["subject"]]["answer_key"])
+    graded = grade_scantron(req["answers"], test_ids[int(id)]["answer_key"])
     temp["score"] = str(graded[0])
     temp["result"] = graded[1]
-    tests[req["subject"]]["submissions"].append(temp)
+    test_ids[int(id)]["submissions"].append(temp)
     return temp, 201
 
 def grade_scantron(answers, key):
